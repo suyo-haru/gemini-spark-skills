@@ -1,2 +1,5 @@
 # gemini-spark-skills
-自分用のスキルレポジトリ。
+
+## これ何？
+
+自分用の Gemini Spark (タスク) 向けに書いたスキル群。
