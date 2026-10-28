@@ -31,10 +31,10 @@ $ python check_text_scripts.py -- "-draft.md"
 
 既定では3分類すべて有効。
 
-| 分類 | 有効化 | 無効化 |
-| --- | --- | --- |
-| 英字系 | --latin | --no-latin |
-| ハングル | --hangul | --no-hangul |
+| 分類             | 有効化   | 無効化      |
+| ---------------- | -------- | ----------- |
+| 英字系           | --latin  | --no-latin  |
+| ハングル         | --hangul | --no-hangul |
 | アラビア文字範囲 | --arabic | --no-arabic |
 
 ```bash
@@ -42,25 +42,27 @@ $ python check_text_scripts.py --no-latin draft.md notes.txt
 $ python check_text_scripts.py --no-hangul --no-arabic draft.md
 ```
 
-同じ分類の有効化・無効化を複数回指定した場合は、最後の指定が有効。3分類をすべて無効にした場合も、読み取りと未閉鎖フェンスの確認は行う。
+同じ分類の有効化・無効化を複数回指定した場合は、最後の指定が有効。
+3分類をすべて無効にした場合も、読み取りと未閉鎖フェンスの確認は行う。
 
 ## 検出対象
 
-| 分類ID | 対象 |
-| --- | --- |
-| LATIN | ASCII英字、全角英字、下表の一般的なアクセント付きラテン文字 |
-| HANGUL | 音節、字母、互換字母、拡張字母、半角ハングル、声調記号 |
-| ARABIC | アラビア文字の基本・補助・拡張ブロック、表示形、数式用文字 |
+| 分類ID | 対象                                                        |
+| ------ | ----------------------------------------------------------- |
+| LATIN  | ASCII英字、全角英字、下表の一般的なアクセント付きラテン文字 |
+| HANGUL | 音節、字母、互換字母、拡張字母、半角ハングル、声調記号      |
+| ARABIC | アラビア文字の基本・補助・拡張ブロック、表示形、数式用文字  |
 
-| 分類 | 対象コードポイント |
-| --- | --- |
-| LATIN | U+0041–005A、U+0061–007A、U+00C0–00D6、U+00D8–00F6、U+00F8–024F、U+1E00–1EFF、U+FF21–FF3A、U+FF41–FF5A |
-| HANGUL | U+1100–11FF、U+302E–302F、U+3130–318F、U+A960–A97F、U+AC00–D7AF、U+D7B0–D7FF、U+FFA0–FFDC |
+| 分類   | 対象コードポイント                                                                                         |
+| ------ | ---------------------------------------------------------------------------------------------------------- |
+| LATIN  | U+0041–005A、U+0061–007A、U+00C0–00D6、U+00D8–00F6、U+00F8–024F、U+1E00–1EFF、U+FF21–FF3A、U+FF41–FF5A     |
+| HANGUL | U+1100–11FF、U+302E–302F、U+3130–318F、U+A960–A97F、U+AC00–D7AF、U+D7B0–D7FF、U+FFA0–FFDC                  |
 | ARABIC | U+0600–06FF、U+0750–077F、U+0870–089F、U+08A0–08FF、U+FB50–FDFF、U+FE70–FEFE、U+10EC0–10EFF、U+1EE00–1EEFF |
 
 対象範囲に一致する文字が1文字でもあれば検出する。言語判定や正誤の判定は行わない。日本語の途中にある英字、固有名詞、URLなども検出対象となる。
 
-同じ分類が連続する部分を1件とする。hello world は2件、abc한글 はLATINとHANGULの2件。
+同じ分類が連続する部分を1件とする。
+hello world は2件、abc한글はLATINとHANGULの2件。
 
 アラビア文字範囲内の専用数字・句読点・記号・結合記号も検出する。ペルシャ語などで使われる同じ系統の文字も含む。数字0–9、全角数字、乗算記号、除算記号、U+FEFFは対象外。
 
@@ -86,7 +88,8 @@ $ python check_text_scripts.py --no-hangul --no-arabic draft.md
 ## 文字コードと位置
 
 - 入力の既定値は utf-8-sig。UTF-8のBOMあり・なしに対応する。
-- --encoding で入力文字コードを指定できる。自動推定や不正バイトの置換は行わない。
+- --encoding で入力文字コードを指定できる。
+  自動推定や不正バイトの置換は行わない。
 - 出力はUTF-8。入力にcp932などを指定しても出力の文字コードは変わらない。
 - LF・CRLF・CRに対応する。垂直タブなどは改行として扱わない。
 - 行・列は1始まり。列はUnicodeコードポイント数で数え、タブは1文字とする。
@@ -97,7 +100,7 @@ $ python check_text_scripts.py --no-hangul --no-arabic draft.md
 
 通常の出力例：
 
-```
+```text
 draft.md:12:8: [LATIN] "hello"
 draft.md:18:3: [HANGUL] "한글"
 OK: notes.txt
@@ -106,33 +109,35 @@ OK: notes.txt
 
 通常の結果と集計は標準出力、エラーは標準エラー出力に出す。
 
---format json では標準出力を1個のJSONオブジェクトにする。ファイル単位のエラーもJSON内に格納する。
+--format json
+では標準出力を1個のJSONオブジェクトにする。ファイル単位のエラーもJSON内に格納する。
 
 ```bash
 $ python check_text_scripts.py --format json draft.md notes.txt > results.json
 ```
 
-| 要素 | 内容 |
-| --- | --- |
-| files | ファイルごとの結果。指定順、重複除外後 |
-| files[].path | 入力時のパス表記 |
-| files[].status | clean / found / error |
-| files[].findings | line、column、script、textを持つ検出一覧 |
-| files[].error | 正常時はnull、エラー時は説明文字列 |
-| summary.checked | エラーなく確認を完了したファイル数 |
-| summary.clean | statusがcleanの数 |
-| summary.flagged | statusがfoundの数 |
-| summary.failed | statusがerrorの数 |
-| summary.matches | 全ファイルの検出件数。未閉鎖フェンス前の検出も含む |
-| exit_code | コマンド全体の終了コード |
+| 要素             | 内容                                               |
+| ---------------- | -------------------------------------------------- |
+| files            | ファイルごとの結果。指定順、重複除外後             |
+| files[].path     | 入力時のパス表記                                   |
+| files[].status   | clean / found / error                              |
+| files[].findings | line、column、script、textを持つ検出一覧           |
+| files[].error    | 正常時はnull、エラー時は説明文字列                 |
+| summary.checked  | エラーなく確認を完了したファイル数                 |
+| summary.clean    | statusがcleanの数                                  |
+| summary.flagged  | statusがfoundの数                                  |
+| summary.failed   | statusがerrorの数                                  |
+| summary.matches  | 全ファイルの検出件数。未閉鎖フェンス前の検出も含む |
+| exit_code        | コマンド全体の終了コード                           |
 
-checked = clean + flagged。未閉鎖フェンスのあるファイルはfailedに数え、flaggedには数えないが、検出結果自体はfindingsとmatchesに残す。
+checked = clean + flagged。
+未閉鎖フェンスのあるファイルはfailedに数え、flaggedには数えないが、検出結果自体はfindingsとmatchesに残す。
 
-| 終了コード | 意味 |
-| --- | --- |
-| 0 | 全ファイルの確認に成功し、検出なし |
-| 1 | 全ファイルの確認に成功し、1件以上の検出あり |
-| 2 | 引数・設定不正、読み取り失敗、未閉鎖フェンスのいずれかあり |
+| 終了コード | 意味                                                       |
+| ---------- | ---------------------------------------------------------- |
+| 0          | 全ファイルの確認に成功し、検出なし                         |
+| 1          | 全ファイルの確認に成功し、1件以上の検出あり                |
+| 2          | 引数・設定不正、読み取り失敗、未閉鎖フェンスのいずれかあり |
 
 読み取りに失敗したファイルの部分的な検出結果は採用しない。空ファイルはclean。ファイル別のエラーがあっても他のファイルの処理は続ける。
 

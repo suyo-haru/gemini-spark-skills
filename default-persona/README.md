@@ -9,11 +9,13 @@
 
 ### `scripts/zip.py`
 
-環境にない `zip` コマンドの代替スクリプト。詳しくは [README](./scripts/README_zip.md) を参照。
+環境にない `zip` コマンドの代替スクリプト。
+詳しくは [README](./scripts/README_zip.md) を参照。
 
 ### `scripts/edit_file.py`
 
-テキストファイルの置換編集用スクリプト。詳しくは [README](./scripts/README_edit_file.md) を参照。
+テキストファイルの置換編集用スクリプト。
+詳しくは [README](./scripts/README_edit_file.md) を参照。
 
 ## 性格づけについて
 
